@@ -25,6 +25,10 @@ Notes:
 * In classical set identities involving complements, you might need the
   `classical` tactic inside your proof.
 * The later chapters deliberately introduce more mathematical machinery.
+
+There's a cheatsheet (`docs/CHEATSHEET.md`) that has
+a bunch of helpful information for solving theorems.
+
 -/
 
 namespace SetPractice
@@ -138,16 +142,26 @@ theorem inter_comm (A B : Set α) : A ∩ B = B ∩ A := by
 -- 012: If A lies in B and C, then it lies in their intersection.
 theorem subset_inter_of_subsets (A B C : Set α)
     (hAB : A ⊆ B) (hAC : A ⊆ C) : A ⊆ B ∩ C := by
-  sorry
+  intro _ hx
+  exact And.intro (hAB hx) (hAC hx)
 
 -- 013: If A and B lie in C, then their union lies in C.
 theorem union_subset_of_subsets (A B C : Set α)
     (hAC : A ⊆ C) (hBC : B ⊆ C) : A ∪ B ⊆ C := by
-  sorry
+  intro x hx
+  cases hx with
+  | inl a =>
+      exact hAC a
+  | inr b =>
+      exact hBC b
 
 -- 014: Intersection is idempotent.
 theorem inter_self (A : Set α) : A ∩ A = A := by
-  sorry
+  apply subset_antisymm (A ∩ A) A
+  · intro x hx
+    exact hx.2
+  · intro x hx
+    exact And.intro hx hx
 
 -- 015: Union is idempotent.
 theorem union_self (A : Set α) : A ∪ A = A := by
