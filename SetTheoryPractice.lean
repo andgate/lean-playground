@@ -75,15 +75,18 @@ theorem inter_subset_left (A B : Set α) : A ∩ B ⊆ A := by
 
 -- 004: Intersection is contained in its right operand.
 theorem inter_subset_right (A B : Set α) : A ∩ B ⊆ B := by
-  sorry
+  intro x hx
+  exact hx.2
 
 -- 005: A set is contained in a union with that set on the left.
 theorem subset_union_left (A B : Set α) : A ⊆ A ∪ B := by
-  sorry
+  intro x hx
+  exact Or.inl hx
 
 -- 006: A set is contained in a union with that set on the right.
 theorem subset_union_right (A B : Set α) : B ⊆ A ∪ B := by
-  sorry
+  intro x hx
+  exact Or.inr hx
 
 -- 007: Inclusion is preserved when union operands are swapped.
 theorem union_subset_comm (A B : Set α) : A ∪ B ⊆ B ∪ A := by
@@ -96,20 +99,39 @@ theorem union_subset_comm (A B : Set α) : A ∪ B ⊆ B ∪ A := by
 
 -- 008: Inclusion is preserved when intersection operands are swapped.
 theorem inter_subset_comm (A B : Set α) : A ∩ B ⊆ B ∩ A := by
-  sorry
+  intro x hx
+  exact And.intro hx.2 hx.1
 
 -- 009: Two sets are equal if each is a subset of the other.
 theorem subset_antisymm (A B : Set α)
     (hAB : A ⊆ B) (hBA : B ⊆ A) : A = B := by
-  sorry
+  apply Set.ext
+  intro x
+  constructor
+  · intro hxA
+    exact hAB hxA
+  · intro hxB
+    exact hBA hxB
+
+theorem subset_antisymm_1 (A B : Set α)
+    (hAB : A ⊆ B) (hBA : B ⊆ A) : A = B := by
+  apply Set.ext
+  intro x
+  constructor
+  · exact hAB (a := x)
+  · exact hBA (a := x)
 
 -- 010: Union is commutative. Reuse 007 and 009.
 theorem union_comm (A B : Set α) : A ∪ B = B ∪ A := by
-  sorry
+  apply subset_antisymm (A ∪ B) (B ∪ A)
+  · exact union_subset_comm A B
+  · exact union_subset_comm B A
 
 -- 011: Intersection is commutative. Reuse 008 and 009.
 theorem inter_comm (A B : Set α) : A ∩ B = B ∩ A := by
-  sorry
+  apply subset_antisymm (A ∩ B) (B ∩ A)
+  · exact inter_subset_comm A B
+  · exact inter_subset_comm B A
 
 /-! ## 02. Building larger set proofs from smaller ones -/
 
