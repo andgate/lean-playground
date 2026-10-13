@@ -43,7 +43,30 @@ theorem subset_refl (A : Set α) : A ⊆ A := by
 -- 002: Subset inclusion is transitive.
 theorem subset_trans (A B C : Set α)
     (hAB : A ⊆ B) (hBC : B ⊆ C) : A ⊆ C := by
-  sorry
+  intro x hx
+  exact hBC (hAB hx)
+
+-- Same statement, different proof styles for comparison.
+
+-- A proof term: `fun` is a lambda, like Haskell's `\x -> ...`.
+-- The arguments are the element (left unnamed) and its membership proof.
+theorem subset_trans_1 (A B C : Set α)
+    (hAB : A ⊆ B) (hBC : B ⊆ C) : A ⊆ C :=
+  fun _ hx => hBC (hAB hx)
+
+-- Work backward from the goal using `apply`.
+theorem subset_trans_2 (A B C : Set α)
+    (hAB : A ⊆ B) (hBC : B ⊆ C) : A ⊆ C := by
+  intro x hx
+  apply hBC -- Changes the goal from `x ∈ C` to `x ∈ B`.
+  exact hAB hx
+
+-- Work forward, giving the intermediate membership proof a name.
+theorem subset_trans_3 (A B C : Set α)
+    (hAB : A ⊆ B) (hBC : B ⊆ C) : A ⊆ C := by
+  intro x hx
+  have hxB : x ∈ B := hAB hx -- Adds `hxB`; the goal is still `x ∈ C`.
+  exact hBC hxB
 
 -- 003: Intersection is contained in its left operand.
 theorem inter_subset_left (A B : Set α) : A ∩ B ⊆ A := by
