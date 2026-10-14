@@ -110,7 +110,7 @@ theorem inter_subset_comm (A B : Set α) : A ∩ B ⊆ B ∩ A := by
 theorem subset_antisymm (A B : Set α)
     (hAB : A ⊆ B) (hBA : B ⊆ A) : A = B := by
   apply Set.ext
-  intro x
+  intro
   constructor
   · intro hxA
     exact hAB hxA
@@ -165,7 +165,11 @@ theorem inter_self (A : Set α) : A ∩ A = A := by
 
 -- 015: Union is idempotent.
 theorem union_self (A : Set α) : A ∪ A = A := by
-  sorry
+  apply subset_antisymm (A ∪ A) A
+  · intro x hx
+    cases hx <;> assumption
+  · intro x hx
+    exact Or.inl hx
 
 -- 016: A is contained in its intersection with A ∪ B.
 theorem subset_inter_union_left (A B : Set α) :
