@@ -133,9 +133,11 @@ theorem union_comm (A B : Set α) : A ∪ B = B ∪ A := by
 
 -- 011: Intersection is commutative. Reuse 008 and 009.
 theorem inter_comm (A B : Set α) : A ∩ B = B ∩ A := by
-  apply subset_antisymm (A ∩ B) (B ∩ A)
-  · exact inter_subset_comm A B
-  · exact inter_subset_comm B A
+  apply Set.ext
+  intro x
+  constructor
+  · exact inter_subset_comm A B (a := x)
+  · exact inter_subset_comm B A (a := x)
 
 /-! ## 02. Building larger set proofs from smaller ones -/
 
@@ -157,44 +159,125 @@ theorem union_subset_of_subsets (A B C : Set α)
 
 -- 014: Intersection is idempotent.
 theorem inter_self (A : Set α) : A ∩ A = A := by
-  apply subset_antisymm (A ∩ A) A
-  · intro x hx
+  apply Set.ext
+  intro x
+  constructor
+  · intro hx
     exact hx.2
-  · intro x hx
+  · intro hx
     exact And.intro hx hx
 
 -- 015: Union is idempotent.
 theorem union_self (A : Set α) : A ∪ A = A := by
-  apply subset_antisymm (A ∪ A) A
-  · intro x hx
+  apply Set.ext
+  intro x
+  constructor
+  · intro hx
     cases hx <;> assumption
-  · intro x hx
+  · intro hx
     exact Or.inl hx
 
 -- 016: A is contained in its intersection with A ∪ B.
 theorem subset_inter_union_left (A B : Set α) :
     A ⊆ A ∩ (A ∪ B) := by
-  sorry
+  intro x hx
+  exact And.intro hx (Or.inl hx)
 
 -- 017: Intersection absorbs union.
 theorem inter_union_absorb (A B : Set α) :
     A ∩ (A ∪ B) = A := by
-  sorry
+  apply Set.ext
+  intro x
+  constructor
+  · intro hx
+    exact hx.1
+  · intro hx
+    exact subset_inter_union_left A B hx
+
 
 -- 018: Union absorbs intersection.
 theorem union_inter_absorb (A B : Set α) :
     A ∪ (A ∩ B) = A := by
-  sorry
+  apply Set.ext
+  intro
+  constructor
+  · intro hx
+    cases hx with
+    | inl hxA =>
+      exact hxA
+    | inr hxAB =>
+      exact hxAB.1
+  · intro hx
+    left
+    exact hx
 
 -- 019: Intersection is associative.
 theorem inter_assoc (A B C : Set α) :
     (A ∩ B) ∩ C = A ∩ (B ∩ C) := by
-  sorry
+  apply Set.ext
+  intro
+  constructor
+  · intro hx
+    exact And.intro hx.1.1 (And.intro hx.1.2 hx.2)
+  · intro hx
+    exact And.intro (And.intro hx.1 hx.2.1) hx.2.2
 
 -- 020: Union is associative.
 theorem union_assoc (A B C : Set α) :
     (A ∪ B) ∪ C = A ∪ (B ∪ C) := by
-  sorry
+  apply Set.ext
+  intro
+  constructor
+  · intro hx
+    cases hx with
+    | inl hxAB =>
+      cases hxAB with
+      | inl hxA =>
+        left
+        exact hxA
+      | inr hxB =>
+        right
+        left
+        exact hxB
+    | inr hxC =>
+      right
+      right
+      exact hxC
+  · intro hx
+    cases hx with
+    | inl hxA =>
+        left
+        left
+        exact hxA
+    | inr hxBC =>
+      cases hxBC with
+      | inl hxB =>
+        left
+        right
+        exact hxB
+      | inr hxC =>
+        right
+        exact hxC
+
+-- Same statement using our earlier inclusion lemmas instead of membership cases.
+-- `apply` infers the set arguments from the current goal.
+theorem union_assoc_1 (A B C : Set α) :
+    (A ∪ B) ∪ C = A ∪ (B ∪ C) := by
+  apply subset_antisymm
+  · apply union_subset_of_subsets
+    · apply union_subset_of_subsets
+      · exact subset_union_left A (B ∪ C)
+      · exact subset_trans B (B ∪ C) (A ∪ (B ∪ C))
+          (subset_union_left B C) (subset_union_right A (B ∪ C))
+    · exact subset_trans C (B ∪ C) (A ∪ (B ∪ C))
+        (subset_union_right B C) (subset_union_right A (B ∪ C))
+  · apply union_subset_of_subsets
+    · exact subset_trans A (A ∪ B) ((A ∪ B) ∪ C)
+        (subset_union_left A B) (subset_union_left (A ∪ B) C)
+    · apply union_subset_of_subsets
+      · exact subset_trans B (A ∪ B) ((A ∪ B) ∪ C)
+          (subset_union_right A B) (subset_union_left (A ∪ B) C)
+      · exact subset_union_right (A ∪ B) C
 
 /-! ## 03. Empty and universal sets
 Work with `∅` and `Set.univ`. -/
